@@ -5,7 +5,7 @@ import string
 import time
 from typing import Optional, Dict, Any, Tuple
 
-BASE_URL = "https://web2.temp-mail.org"
+TEMPMAIL_BASE_URL = "https://web2.temp-mail.org"
 MAILTM_BASE_URL = "https://api.mail.tm"
 
 def get_base_headers() -> Dict[str, str]:
@@ -45,54 +45,43 @@ class TempMailClient:
         return headers
 
     def create_mailbox(self) -> Dict[str, Any]:
-        """Creates a new temporary mailbox. Tries web2.temp-mail.org first, falls back to Mail.tm on Cloudflare blocks (403/429)."""
-        # 1. Try web2.temp-mail.org
+        """Generates a fresh live temporary mailbox dynamically."""
+        # 1. Try temp-mail.org primary endpoint
         try:
             headers = self._auth_headers()
-            resp = self.session.post(f"{BASE_URL}/mailbox", headers=headers, json={}, timeout=8)
+            resp = self.session.post(f"{TEMPMAIL_BASE_URL}/mailbox", headers=headers, json={}, timeout=10)
             if resp.status_code == 200:
                 data = resp.json()
-                if "token" in data and "mailbox" in data:
+                if "mailbox" in data and "token" in data:
                     return data
         except Exception as e:
-            print(f"[DEBUG] web2.temp-mail.org error ({e}), switching to Cloud Engine...")
+            print("[WARN] temp-mail.org primary failed, trying cloud-resilient fallback:", e)
 
-        # 2. Seamless Cloud Engine Fallback (Guaranteed to work in serverless/Vercel)
-        return self._create_mailtm_account()
+        # 2. Resilient Cloud / Vercel fallback (api.mail.tm)
+        try:
+            import requests
+            domains_res = requests.get(f"{MAILTM_BASE_URL}/domains", timeout=10)
+            if domains_res.status_code == 200:
+                domain_list = domains_res.json().get("hydra:member", [])
+                if domain_list:
+                    domain = domain_list[0]["domain"]
+                    rand_user = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+                    email_addr = f"{rand_user}@{domain}"
+                    rand_pass = ''.join(random.choices(string.ascii_letters + string.digits, k=12)) + "!"
 
-    def _create_mailtm_account(self) -> Dict[str, Any]:
-        """Creates a disposable mailbox using Mail.tm cloud engine."""
-        import requests
-        sess = requests.Session()
-        
-        # Get active domain
-        d_res = sess.get(f"{MAILTM_BASE_URL}/domains", timeout=10)
-        d_data = d_res.json()
-        members = d_data.get("hydra:member", [])
-        if not members:
-            raise Exception("No active mail domains available at this time.")
-        domain = members[0]["domain"]
-        
-        # Generate random credentials
-        rand_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-        address = f"lx_{rand_str}@{domain}"
-        password = f"P@{rand_str}123!"
-        
-        # Create account
-        sess.post(f"{MAILTM_BASE_URL}/accounts", json={"address": address, "password": password}, timeout=10)
-        
-        # Retrieve JWT Token
-        tok_res = sess.post(f"{MAILTM_BASE_URL}/token", json={"address": address, "password": password}, timeout=10)
-        tok_data = tok_res.json()
-        raw_token = tok_data.get("token")
-        
-        if not raw_token:
-            raise Exception("Failed to retrieve token from cloud engine.")
-            
-        return {
-            "token": f"mtm_{raw_token}",
-            "mailbox": address
-        }
+                    acc_res = requests.post(f"{MAILTM_BASE_URL}/accounts", json={"address": email_addr, "password": rand_pass}, timeout=10)
+                    if acc_res.status_code in [200, 201]:
+                        tok_res = requests.post(f"{MAILTM_BASE_URL}/token", json={"address": email_addr, "password": rand_pass}, timeout=10)
+                        if tok_res.status_code == 200:
+                            raw_tok = tok_res.json().get("token")
+                            return {
+                                "token": f"mtm_{raw_tok}",
+                                "mailbox": email_addr
+                            }
+        except Exception as e2:
+            print("[ERROR] Fallback creation failed:", e2)
+
+        raise Exception("Unable to create live mailbox. Please retry in a few seconds.")
 
     def get_mailbox(self, token: str) -> Dict[str, Any]:
         """Retrieves mailbox info for the active token."""
@@ -105,7 +94,7 @@ class TempMailClient:
             return {"mailbox": "Active Mailbox"}
 
         headers = self._auth_headers(token)
-        resp = self.session.get(f"{BASE_URL}/mailbox", headers=headers, timeout=10)
+        resp = self.session.get(f"{TEMPMAIL_BASE_URL}/mailbox", headers=headers, timeout=12)
         if resp.status_code >= 400:
             raise Exception(f"Failed to get mailbox: [{resp.status_code}] {resp.text}")
         return resp.json()
@@ -148,7 +137,7 @@ class TempMailClient:
         params = {}
         if after:
             params['after'] = after
-        resp = self.session.get(f"{BASE_URL}/messages", headers=headers, params=params, timeout=10)
+        resp = self.session.get(f"{TEMPMAIL_BASE_URL}/messages", headers=headers, params=params, timeout=12)
         if resp.status_code >= 400:
             raise Exception(f"Failed to get messages: [{resp.status_code}] {resp.text}")
         return resp.json()
@@ -202,7 +191,7 @@ class TempMailClient:
             }
 
         headers = self._auth_headers(token)
-        resp = self.session.get(f"{BASE_URL}/messages/{message_id}", headers=headers, timeout=10)
+        resp = self.session.get(f"{TEMPMAIL_BASE_URL}/messages/{message_id}", headers=headers, timeout=12)
         if resp.status_code >= 400:
             raise Exception(f"Failed to get message: [{resp.status_code}] {resp.text}")
         return resp.json()
@@ -218,7 +207,7 @@ class TempMailClient:
             return {"success": True, "messageId": message_id}
 
         headers = self._auth_headers(token)
-        resp = self.session.delete(f"{BASE_URL}/messages/{message_id}", headers=headers, timeout=10)
+        resp = self.session.delete(f"{TEMPMAIL_BASE_URL}/messages/{message_id}", headers=headers, timeout=12)
         if resp.status_code >= 400:
             raise Exception(f"Failed to delete message: [{resp.status_code}] {resp.text}")
         return {"success": True, "messageId": message_id}
@@ -235,7 +224,7 @@ class TempMailClient:
             return f"From: {msg_data.get('from')}\nSubject: {msg_data.get('subject')}\nDate: {msg_data.get('receivedAt')}\n\n{msg_data.get('body')}"
 
         headers = self._auth_headers(token)
-        resp = self.session.get(f"{BASE_URL}/messages/{message_id}/source", headers=headers, timeout=10)
+        resp = self.session.get(f"{TEMPMAIL_BASE_URL}/messages/{message_id}/source", headers=headers, timeout=12)
         if resp.status_code >= 400:
             raise Exception(f"Failed to get message source: [{resp.status_code}] {resp.text}")
         return resp.text
@@ -245,7 +234,6 @@ class TempMailClient:
         if token.startswith("mtm_"):
             real_token = token[4:]
             import requests
-            # Fetch message to get attachment download url
             msg_data = self.get_message(token, message_id)
             target_att = next((a for a in msg_data.get("attachments", []) if str(a.get("id")) == str(attachment_id)), None)
             if target_att and target_att.get("downloadUrl"):
@@ -255,7 +243,7 @@ class TempMailClient:
 
         headers = self._auth_headers(token)
         resp = self.session.get(
-            f"{BASE_URL}/messages/{message_id}/attachment/{attachment_id}",
+            f"{TEMPMAIL_BASE_URL}/messages/{message_id}/attachment/{attachment_id}",
             headers=headers,
             timeout=30
         )
