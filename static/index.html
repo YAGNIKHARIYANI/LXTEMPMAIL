@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LX TEMP MAIL | Professional Disposable Email</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z'/><path d='M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z'/></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          },
+          screens: {
+            'xs': '475px',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+
+  <!-- Ambient Glow Background -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-40 dark:opacity-20">
+    <div class="absolute -top-40 -left-40 w-72 sm:w-[32rem] h-72 sm:h-[32rem] bg-indigo-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 -right-40 w-64 sm:w-[28rem] h-64 sm:h-[28rem] bg-emerald-500/15 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Enterprise Header -->
+  <header class="relative z-20 border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 transition-colors">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between">
+      
+      <!-- Logo and Developer Credits -->
+      <div class="flex items-center space-x-2.5 sm:space-x-3.5 min-w-0">
+        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white shrink-0">
+          <i data-lucide="shield-check" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center space-x-1.5 sm:space-x-2">
+            <h1 class="text-base sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-500 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent truncate">
+              LX TEMP MAIL
+            </h1>
+            <span class="text-[9px] sm:text-[10px] font-bold tracking-wide uppercase px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span>LIVE</span>
+            </span>
+          </div>
+          <p class="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
+            <span>By</span>
+            <span class="font-semibold text-indigo-600 dark:text-indigo-400">Yagnik Hariyani</span>
+            <span>&amp;</span>
+            <span class="font-semibold text-indigo-600 dark:text-indigo-400">Vaidehi Hariyani</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Controls: Theme Toggle, Sound, Live Status -->
+      <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
+        
+        <!-- Live System Status Badge (hidden on small phones) -->
+        <div class="hidden md:flex items-center space-x-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+          <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i>
+          <span>Live Sync</span>
+        </div>
+
+        <!-- Audio Notification Toggle -->
+        <button 
+          id="btn-toggle-sound" 
+          title="Toggle notification sound" 
+          class="p-2 sm:p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition border border-slate-200 dark:border-slate-700 shadow-sm"
+        >
+          <i id="icon-sound" data-lucide="volume-2" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Dark / Light Theme Toggle Button -->
+        <button 
+          id="btn-theme-toggle" 
+          title="Toggle Light / Dark theme" 
+          class="p-2 sm:p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center"
+        >
+          <i id="icon-theme-sun" data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+          <i id="icon-theme-moon" data-lucide="moon" class="w-4 h-4 block dark:hidden text-indigo-600"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex flex-col gap-4 sm:gap-6">
+
+    <!-- Hero Card: Active Disposable Email Address & Actions -->
+    <div class="hero-email-card rounded-2xl p-4 sm:p-6 lg:p-7 shadow-lg">
+      <!-- Auto-refresh sync progress line -->
+      <div class="absolute top-0 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-800">
+        <div id="refresh-progress-bar" class="h-full bg-gradient-to-r from-indigo-600 via-violet-500 to-emerald-500 progress-bar-transition w-full"></div>
+      </div>
+
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-5">
+        
+        <!-- Mailbox Address Box -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-1.5 sm:mb-2">
+            <label class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center space-x-1.5 truncate">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0"></i>
+              <span>Temporary Email Address</span>
+            </label>
+            <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1 shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Active</span>
+            </span>
+          </div>
+
+          <div class="relative flex items-center">
+            <div class="absolute left-3 sm:left-4 text-indigo-600 dark:text-indigo-400">
+              <i data-lucide="at-sign" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </div>
+            <input 
+              id="email-address-input" 
+              type="text" 
+              readonly 
+              value="Generating temporary email..."
+              class="w-full bg-slate-50 dark:bg-slate-900/90 text-slate-900 dark:text-white font-mono text-xs sm:text-base md:text-lg pl-9 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3.5 rounded-xl border border-slate-300 dark:border-indigo-500/30 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 shadow-inner select-all transition truncate"
+            >
+            <button 
+              id="btn-copy-email-inline" 
+              title="Copy email to clipboard"
+              class="absolute right-2 sm:right-3 p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition"
+            >
+              <i id="copy-inline-icon" data-lucide="copy" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons (Responsive 2x2 grid on mobile, inline flex on desktop) -->
+        <div class="grid grid-cols-2 xs:grid-cols-4 lg:flex items-center gap-2 sm:gap-2.5 pt-1 lg:pt-5">
+          
+          <!-- Copy Button -->
+          <button 
+            id="btn-copy-email"
+            class="w-full lg:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 btn-brand font-semibold px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm transition active:scale-95 shadow-md"
+          >
+            <i id="btn-copy-icon" data-lucide="copy" class="w-4 h-4"></i>
+            <span id="btn-copy-text" class="truncate">Copy</span>
+          </button>
+
+          <!-- Refresh Button -->
+          <button 
+            id="btn-refresh" 
+            title="Refresh Inbox"
+            class="w-full lg:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm border border-slate-300 dark:border-slate-700 shadow-sm transition active:scale-95"
+          >
+            <i id="btn-refresh-icon" data-lucide="rotate-cw" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
+            <span>Refresh</span>
+            <span id="refresh-timer-badge" class="text-[10px] sm:text-xs font-mono text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/60">10s</span>
+          </button>
+
+          <!-- QR Code Button -->
+          <button 
+            id="btn-qrcode" 
+            title="Scan QR Code"
+            class="w-full lg:w-auto flex items-center justify-center space-x-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold p-2.5 sm:p-3.5 rounded-xl text-xs sm:text-sm border border-slate-300 dark:border-slate-700 shadow-sm transition active:scale-95"
+          >
+            <i data-lucide="qr-code" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400"></i>
+            <span class="inline lg:hidden">QR Code</span>
+          </button>
+
+          <!-- Change / Generate New Mailbox Button -->
+          <button 
+            id="btn-change-email" 
+            title="Discard and generate a brand new email address"
+            class="w-full lg:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-300 font-semibold px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm border border-rose-200 dark:border-rose-800/40 shadow-sm transition active:scale-95"
+          >
+            <i data-lucide="trash-2" class="w-4 h-4 text-rose-500"></i>
+            <span class="truncate">New Email</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive Split Layout: Inbox (Left) & Email Reader (Right) -->
+    <div id="main-content-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 flex-1 min-h-[450px]">
+      
+      <!-- Left Panel: Inbox Feed List (Full width on mobile when viewing list, 5 cols on lg) -->
+      <div id="inbox-panel" class="lg:col-span-5 flex flex-col glass-panel rounded-2xl p-3.5 sm:p-5 shadow-lg overflow-hidden min-h-[380px]">
+        
+        <!-- Inbox Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+              <i data-lucide="inbox" class="w-4 h-4"></i>
+            </div>
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Inbox Feed</h2>
+            <span id="messages-count-badge" class="bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 text-xs font-mono font-bold px-2 py-0.5 rounded-full border border-indigo-300 dark:border-indigo-800/60">
+              0
+            </span>
+          </div>
+
+          <div class="flex items-center space-x-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <span id="sync-status" class="flex items-center space-x-1.5 font-medium">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="hidden xs:inline">Live Sync</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="pt-2.5 pb-2">
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            <input 
+              id="search-input" 
+              type="text" 
+              placeholder="Search sender or subject..." 
+              class="w-full bg-slate-100 dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 text-xs pl-9 pr-4 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:border-indigo-600 focus:outline-none transition shadow-inner"
+            >
+          </div>
+        </div>
+
+        <!-- Messages List Container -->
+        <div id="messages-list-container" class="flex-1 overflow-y-auto space-y-2 pr-1 mt-1">
+          
+          <!-- Empty State -->
+          <div id="inbox-empty-state" class="h-full min-h-[260px] flex flex-col items-center justify-center text-center p-4 sm:p-6 text-slate-500 dark:text-slate-400">
+            <div class="relative mb-3 sm:mb-4">
+              <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
+                <i data-lucide="mail-open" class="w-7 h-7 sm:w-8 sm:h-8"></i>
+              </div>
+              <div class="absolute inset-0 rounded-2xl bg-indigo-500/20 radar-anim pointer-events-none"></div>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">Waiting for Incoming Mail</h3>
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 max-w-[240px] leading-relaxed">
+              Your disposable inbox is active and monitoring. Incoming emails sent to your address will display here instantly.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Panel: Message Reader (Hidden on mobile until message clicked, 7 cols on lg) -->
+      <div id="message-reader-panel" class="hidden lg:flex lg:col-span-7 flex-col glass-panel rounded-2xl p-3.5 sm:p-5 lg:p-6 shadow-lg min-h-[420px]">
+        
+        <!-- Mobile Back Navigation Button (visible only on mobile/tablet) -->
+        <div class="block lg:hidden pb-3 mb-2 border-b border-slate-200 dark:border-slate-800">
+          <button 
+            id="btn-mobile-back" 
+            class="flex items-center space-x-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 py-1.5 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 active:scale-95 transition"
+          >
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Inbox</span>
+          </button>
+        </div>
+
+        <!-- Placeholder View (Desktop when no email selected) -->
+        <div id="reader-placeholder" class="flex-1 flex flex-col items-center justify-center text-center p-6 sm:p-8 text-slate-400 dark:text-slate-500">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center mb-3 sm:mb-4 text-slate-400 dark:text-slate-500 shadow-sm">
+            <i data-lucide="mail-search" class="w-8 h-8 sm:w-10 sm:h-10"></i>
+          </div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 mb-1">No Message Selected</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
+            Click on any message in the inbox feed to view full formatted content, inspect attachments, or view raw RFC822 source headers.
+          </p>
+        </div>
+
+        <!-- Full Email Content View -->
+        <div id="reader-content" class="hidden flex-1 flex flex-col">
+          
+          <!-- Email Meta Header -->
+          <div class="border-b border-slate-200 dark:border-slate-800 pb-3.5 mb-3.5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5">
+              <h2 id="email-view-subject" class="text-base sm:text-lg lg:text-xl font-extrabold text-slate-900 dark:text-white break-words">
+                Email Subject
+              </h2>
+              
+              <!-- Message action buttons -->
+              <div class="flex items-center space-x-2 self-start sm:self-auto shrink-0">
+                <button 
+                  id="btn-view-raw-source" 
+                  title="View Raw Source"
+                  class="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700 transition"
+                >
+                  <i data-lucide="code-xml" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 dark:text-indigo-400"></i>
+                  <span class="inline">Source</span>
+                </button>
+                <button 
+                  id="btn-delete-selected-email" 
+                  title="Delete this message"
+                  class="p-1.5 sm:p-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center space-x-1.5 border border-rose-200 dark:border-rose-800/40 transition"
+                >
+                  <i data-lucide="trash" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500"></i>
+                  <span class="inline">Delete</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sender and Date details -->
+            <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-wrap gap-2">
+              <div class="flex items-center space-x-2.5 min-w-0">
+                <div id="email-sender-avatar" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm uppercase shadow-sm shrink-0">
+                  W
+                </div>
+                <div class="min-w-0 truncate">
+                  <div id="email-view-from" class="text-xs sm:text-sm truncate">
+                    <span class="font-bold text-slate-900 dark:text-white">Sender Name</span>
+                    <span class="text-slate-400 font-mono text-[10px] sm:text-xs ml-1">&lt;sender@example.com&gt;</span>
+                  </div>
+                  <div class="text-[10px] sm:text-[11px] text-slate-500 truncate">
+                    To: <span id="email-view-to" class="font-mono text-indigo-600 dark:text-indigo-400 font-medium">your-temp-mail</span>
+                  </div>
+                </div>
+              </div>
+
+              <div id="email-view-date" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 flex items-center space-x-1.5 font-mono bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-slate-200 dark:border-slate-700/60 shrink-0">
+                <i data-lucide="clock" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-600 dark:text-indigo-400"></i>
+                <span>Just now</span>
+              </div>
+            </div>
+
+            <!-- Attachments container -->
+            <div id="email-attachments-section" class="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 mb-2">
+                <i data-lucide="paperclip" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"></i>
+                <span>Attachments (<span id="email-attachments-count">0</span>):</span>
+              </div>
+              <div id="email-attachments-list" class="flex flex-wrap gap-2">
+                <!-- Attachment chips -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Email Content Body -->
+          <div class="flex-1 flex flex-col bg-white rounded-xl overflow-hidden shadow-inner border border-slate-200 dark:border-slate-800">
+            <div class="bg-slate-50 dark:bg-slate-900 px-3 py-1.5 sm:px-3.5 sm:py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+              <span class="font-semibold flex items-center space-x-1.5 text-slate-700 dark:text-slate-300">
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"></i>
+                <span>Message Body</span>
+              </span>
+              <button id="btn-open-email-window" title="Open in new window" class="hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition flex items-center space-x-1">
+                <i data-lucide="external-link" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                <span>Popout</span>
+              </button>
+            </div>
+            <iframe id="email-body-iframe" class="email-iframe flex-1 min-h-[340px] sm:min-h-[440px]" sandbox="allow-same-origin allow-popups"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Enterprise Footer -->
+  <footer class="relative z-10 border-t border-slate-200 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md py-4 sm:py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
+      <div class="flex items-center space-x-1.5 flex-wrap justify-center sm:justify-start">
+        <span class="font-extrabold text-slate-900 dark:text-white">LX TEMP MAIL</span>
+        <span>•</span>
+        <span>Developed by <strong class="text-indigo-600 dark:text-indigo-400">Yagnik Hariyani</strong> &amp; <strong class="text-indigo-600 dark:text-indigo-400">Vaidehi Hariyani</strong></span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="flex items-center space-x-1">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-500"></i>
+          <span>100% Secure &amp; Anonymous</span>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- QR Code Modal -->
+  <div id="modal-qrcode" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 sm:p-6 max-w-sm w-full shadow-2xl relative text-center">
+      <button id="btn-close-qrcode" class="absolute top-3.5 right-3.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-2.5">
+        <i data-lucide="qr-code" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+      </div>
+      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1">Scan Address QR Code</h3>
+      <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-3.5">Scan to open and copy your temporary email on mobile devices</p>
+      <div id="qrcode-canvas" class="bg-white p-3.5 rounded-xl flex items-center justify-center mx-auto mb-3.5 inline-block shadow-md border border-slate-200"></div>
+      <div id="modal-qrcode-text" class="text-xs font-mono text-slate-700 dark:text-slate-300 break-all bg-slate-100 dark:bg-slate-800/80 p-2 rounded-lg border border-slate-200 dark:border-slate-700 select-all"></div>
+    </div>
+  </div>
+
+  <!-- Raw Source Modal -->
+  <div id="modal-raw-source" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 max-w-3xl w-full shadow-2xl relative flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="code-xml" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400"></i>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Raw RFC822 Source Headers</h3>
+        </div>
+        <div class="flex items-center space-x-1.5 sm:space-x-2">
+          <button id="btn-copy-raw-source" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center space-x-1 transition shadow-sm">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy</span>
+          </button>
+          <button id="btn-close-raw-source" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+      <pre id="raw-source-text" class="flex-1 overflow-auto bg-slate-950 p-3 sm:p-4 rounded-xl text-[11px] sm:text-xs font-mono text-emerald-400 border border-slate-800 select-all whitespace-pre-wrap"></pre>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container (Responsive) -->
+  <div id="toast-container" class="fixed bottom-4 sm:bottom-6 inset-x-3 sm:inset-x-auto sm:right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full mx-auto sm:mx-0"></div>
+
+  <!-- App JavaScript Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
