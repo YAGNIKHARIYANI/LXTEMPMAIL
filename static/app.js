@@ -196,7 +196,11 @@ class LxTempMailApp {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        throw new Error(errJson.detail || `HTTP ${resp.status}`);
+      }
+
       const data = await resp.json();
 
       this.token = data.token;
@@ -215,8 +219,8 @@ class LxTempMailApp {
       this.startPolling();
     } catch (err) {
       console.error('Error creating mailbox:', err);
-      this.emailInput.value = 'Failed to generate email';
-      this.showToast('Failed to create mailbox. Please retry.', 'error');
+      this.emailInput.value = this.mailbox || 'Click Refresh/New';
+      this.showToast(err.message || 'Failed to create mailbox. Please retry in a few seconds.', 'error');
     } finally {
       this.setLoading(false);
     }

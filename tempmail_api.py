@@ -1,27 +1,9 @@
 import json
 import os
 import time
-from curl_cffi import requests
 from typing import Optional, Dict, Any, Tuple
 
 BASE_URL = "https://web2.temp-mail.org"
-CACHE_FILE = os.path.join(os.path.dirname(__file__), "active_session.json")
-
-# Backup pre-generated live tokens to prevent user disruption during rate-limits
-BACKUP_SESSIONS = [
-    {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiY2VkNjlkMjk5Mjg2NDQyOThkYmQ2NzMyN2UxY2IwMWEiLCJtYWlsYm94IjoidmF5YXhlNDY3N0BkYXVnci5jb20iLCJpYXQiOjE3ODkxMDM0MjV9.mY4C2JtIaYAb1W3eeM776cq2VC6j1gld8sO9UK2_KQo",
-        "mailbox": "vayaxe4677@daugr.com"
-    },
-    {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMzJlMTI3MzA3MWY1NDA3YTk3OWZkZjUwOGFlM2FmYjUiLCJtYWlsYm94IjoicmVtZWs5MTYxN0BjcnliaW8uY29tIiwiaWF0IjoxNzg5MTAzNDE1fQ.Ry37HlpMBe3jgySEmTQ7_X86t9UeZAmRZr7j5l1ezHM",
-        "mailbox": "remek91617@crybio.com"
-    },
-    {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMmE3NTYxNjgxNmVmNDc5ZDk2OWJhNTg3MzZlYWYyNzAiLCJtYWlsYm94IjoieGV4b21pZjI0M0A5NGFuLmNvbSIsImlhdCI6MTc4OTEwMzMyN30.Ge0Xbl-qB8-ubz-kppfKH-POxO6Ymy7ItWiRS5aOWHA",
-        "mailbox": "xexomif243@94an.com"
-    }
-]
 
 def get_base_headers() -> Dict[str, str]:
     return {
@@ -41,25 +23,18 @@ def get_base_headers() -> Dict[str, str]:
 
 class TempMailClient:
     def __init__(self):
-        self.session = requests.Session(impersonate="chrome120")
-        self.last_known_session = self._load_cached_session()
+        self._init_session()
 
-    def _load_cached_session(self) -> Optional[Dict[str, str]]:
-        if os.path.exists(CACHE_FILE):
-            try:
-                with open(CACHE_FILE, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except Exception:
-                pass
-        return BACKUP_SESSIONS[0] if BACKUP_SESSIONS else None
-
-    def _save_cached_session(self, data: Dict[str, str]):
-        self.last_known_session = data
+    def _init_session(self):
+        # Try curl_cffi for TLS impersonation first
         try:
-            with open(CACHE_FILE, "w", encoding="utf-8") as f:
-                json.dump(data, f)
-        except Exception:
-            pass
+            from curl_cffi import requests as cffi_requests
+            self.session = cffi_requests.Session(impersonate="chrome120")
+            self.engine = "curl_cffi"
+        except Exception as e:
+            import requests
+            self.session = requests.Session()
+            self.engine = "requests"
 
     def _auth_headers(self, token: Optional[str] = None) -> Dict[str, str]:
         headers = get_base_headers()
@@ -68,38 +43,32 @@ class TempMailClient:
         return headers
 
     def create_mailbox(self) -> Dict[str, Any]:
-        """Creates a new temporary mailbox and returns token and email address."""
+        """Generates a fresh live temporary mailbox dynamically."""
         headers = self._auth_headers()
+        
+        # Primary attempt
         try:
             resp = self.session.post(f"{BASE_URL}/mailbox", headers=headers, json={}, timeout=15)
             if resp.status_code == 200:
-                data = resp.json()
-                self._save_cached_session(data)
-                return data
-            
-            # If 429 rate limit is hit, use a valid live session so service remains uninterrupted
+                return resp.json()
             if resp.status_code == 429:
-                print("[WARN] Rate limit (429) on POST /mailbox, serving active live session.")
-                # Verify that fallback token is valid
-                for sess in BACKUP_SESSIONS:
-                    try:
-                        self.get_messages(sess["token"])
-                        self._save_cached_session(sess)
-                        return sess
-                    except Exception:
-                        continue
-                if self.last_known_session:
-                    return self.last_known_session
-                
+                raise Exception("Rate limited: Please wait 10 seconds before requesting another new address.")
             raise Exception(f"Failed to create mailbox: [{resp.status_code}] {resp.text}")
         except Exception as e:
-            if self.last_known_session:
-                print(f"[WARN] Failed to create mailbox ({e}), falling back to cached live session.")
-                return self.last_known_session
+            # Fallback to requests if curl_cffi encountered environment issues
+            if self.engine == "curl_cffi":
+                try:
+                    import requests
+                    fallback_sess = requests.Session()
+                    resp = fallback_sess.post(f"{BASE_URL}/mailbox", headers=headers, json={}, timeout=15)
+                    if resp.status_code == 200:
+                        return resp.json()
+                except Exception:
+                    pass
             raise e
 
     def get_mailbox(self, token: str) -> Dict[str, Any]:
-        """Retrieves mailbox information for the provided JWT token."""
+        """Retrieves mailbox info for the active token."""
         headers = self._auth_headers(token)
         resp = self.session.get(f"{BASE_URL}/mailbox", headers=headers, timeout=15)
         if resp.status_code >= 400:
@@ -107,7 +76,7 @@ class TempMailClient:
         return resp.json()
 
     def get_messages(self, token: str, after: Optional[str] = None) -> Dict[str, Any]:
-        """Retrieves all messages for the current mailbox."""
+        """Fetches inbox messages list for the current mailbox."""
         headers = self._auth_headers(token)
         params = {}
         if after:
@@ -118,7 +87,7 @@ class TempMailClient:
         return resp.json()
 
     def get_message(self, token: str, message_id: str) -> Dict[str, Any]:
-        """Retrieves full email details for a specific message ID."""
+        """Fetches full email message details and HTML content."""
         headers = self._auth_headers(token)
         resp = self.session.get(f"{BASE_URL}/messages/{message_id}", headers=headers, timeout=15)
         if resp.status_code >= 400:
@@ -134,7 +103,7 @@ class TempMailClient:
         return {"success": True, "messageId": message_id}
 
     def get_message_source(self, token: str, message_id: str) -> str:
-        """Retrieves the raw source (EML / RFC822) of the message."""
+        """Fetches raw RFC822 EML source."""
         headers = self._auth_headers(token)
         resp = self.session.get(f"{BASE_URL}/messages/{message_id}/source", headers=headers, timeout=15)
         if resp.status_code >= 400:
@@ -142,7 +111,7 @@ class TempMailClient:
         return resp.text
 
     def get_attachment(self, token: str, message_id: str, attachment_id: str) -> Tuple[bytes, str, str]:
-        """Downloads an attachment and returns (content_bytes, content_type, filename)."""
+        """Downloads an attachment."""
         headers = self._auth_headers(token)
         resp = self.session.get(
             f"{BASE_URL}/messages/{message_id}/attachment/{attachment_id}",
