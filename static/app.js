@@ -7,7 +7,7 @@ class LxTempMailApp {
     this.mailbox = localStorage.getItem('lx_mailbox') || localStorage.getItem('tempmail_mailbox') || null;
     this.messages = [];
     this.selectedMessageId = null;
-    this.pollIntervalSeconds = 10;
+    this.pollIntervalSeconds = 4;
     this.countdown = this.pollIntervalSeconds;
     this.pollTimer = null;
     this.countdownTimer = null;
